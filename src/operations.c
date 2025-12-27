@@ -183,8 +183,108 @@ void on_search_clicked(GtkButton *button, gpointer user_data) {
         return;
     }
     
+    // Save the searched package name for potential installation
+    strncpy(app->last_searched_package, search_term, 255);
+    app->last_searched_package[255] = '\0';
+    
+    // Also populate the package entry field
+    gtk_entry_set_text(GTK_ENTRY(app->package_entry), search_term);
+    
     char *script = get_script_path(app->current_manager);
     execute_script(script, "search", search_term, app->text_buffer);
+    
+    // Update status to remind user they can install
+    char status_msg[256];
+    snprintf(status_msg, sizeof(status_msg), "Search completed. Use Install button or enter exact package name.");
+    gtk_statusbar_push(GTK_STATUSBAR(app->status_bar), 0, status_msg);
+}
+
+// Callback: Install button clicked
+void on_install_clicked(GtkButton *button, gpointer user_data) {
+    OrangeApp *app = (OrangeApp *)user_data;
+    
+    if (strlen(app->current_manager) == 0) {
+        append_to_text_view(app->text_buffer, "Please select a package manager first.\n");
+        return;
+    }
+    
+    const char *package_name = gtk_entry_get_text(GTK_ENTRY(app->package_entry));
+    
+    if (strlen(package_name) == 0) {
+        append_to_text_view(app->text_buffer, "Please enter a package name to install.\n");
+        append_to_text_view(app->text_buffer, "Tip: Search for a package first, then click Install.\n");
+        return;
+    }
+    
+    char confirm_msg[512];
+    snprintf(confirm_msg, sizeof(confirm_msg), 
+             "\n⚠️  Installing package: %s\n"
+             "This will require sudo privileges.\n"
+             "Proceeding with installation...\n\n", package_name);
+    append_to_text_view(app->text_buffer, confirm_msg);
+    
+    char *script = get_script_path(app->current_manager);
+    execute_script(script, "install", package_name, app->text_buffer);
+    
+    gtk_statusbar_push(GTK_STATUSBAR(app->status_bar), 0, "Installation command executed");
+}
+
+// Callback: Remove button clicked
+void on_remove_clicked(GtkButton *button, gpointer user_data) {
+    OrangeApp *app = (OrangeApp *)user_data;
+    
+    if (strlen(app->current_manager) == 0) {
+        append_to_text_view(app->text_buffer, "Please select a package manager first.\n");
+        return;
+    }
+    
+    const char *package_name = gtk_entry_get_text(GTK_ENTRY(app->package_entry));
+    
+    if (strlen(package_name) == 0) {
+        append_to_text_view(app->text_buffer, "Please enter a package name to remove.\n");
+        return;
+    }
+    
+    char confirm_msg[512];
+    snprintf(confirm_msg, sizeof(confirm_msg), 
+             "\n⚠️  Removing package: %s\n"
+             "This will require sudo privileges.\n"
+             "Proceeding with removal...\n\n", package_name);
+    append_to_text_view(app->text_buffer, confirm_msg);
+    
+    char *script = get_script_path(app->current_manager);
+    execute_script(script, "remove", package_name, app->text_buffer);
+    
+    gtk_statusbar_push(GTK_STATUSBAR(app->status_bar), 0, "Removal command executed");
+}
+
+// Callback: Rollback button clicked
+void on_rollback_clicked(GtkButton *button, gpointer user_data) {
+    OrangeApp *app = (OrangeApp *)user_data;
+    
+    if (strlen(app->current_manager) == 0) {
+        append_to_text_view(app->text_buffer, "Please select a package manager first.\n");
+        return;
+    }
+    
+    const char *package_name = gtk_entry_get_text(GTK_ENTRY(app->package_entry));
+    
+    if (strlen(package_name) == 0) {
+        append_to_text_view(app->text_buffer, "Please enter a package name for rollback.\n");
+        append_to_text_view(app->text_buffer, "Note: Not all package managers support automatic rollback.\n");
+        return;
+    }
+    
+    char info_msg[512];
+    snprintf(info_msg, sizeof(info_msg), 
+             "\n🔄 Checking rollback options for: %s\n"
+             "Package manager: %s\n\n", package_name, app->current_manager);
+    append_to_text_view(app->text_buffer, info_msg);
+    
+    char *script = get_script_path(app->current_manager);
+    execute_script(script, "rollback", package_name, app->text_buffer);
+    
+    gtk_statusbar_push(GTK_STATUSBAR(app->status_bar), 0, "Rollback information displayed");
 }
 
 // Callback: Refresh button clicked

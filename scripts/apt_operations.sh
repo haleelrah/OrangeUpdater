@@ -27,10 +27,22 @@ case "$OPERATION" in
         apt show "$PACKAGE" 2>/dev/null
         ;;
     "rollback")
-        echo "APT rollback requires specific version: apt install package=version"
+        echo "═══════════════════════════════════════════════════════════"
+        echo "APT Rollback Options for: $PACKAGE"
+        echo "═══════════════════════════════════════════════════════════"
+        echo ""
         if [ -n "$PACKAGE" ]; then
+            echo "Available versions of $PACKAGE:"
             apt list -a "$PACKAGE" 2>/dev/null
+            echo ""
+            echo "To install a specific version, use:"
+            echo "  sudo apt install $PACKAGE=<version>"
+            echo ""
+            echo "Example: sudo apt install $PACKAGE=1.2.3-1"
+        else
+            echo "Please specify a package name"
         fi
+        echo "═══════════════════════════════════════════════════════════"
         ;;
     *)
         echo "Unknown operation: $OPERATION"

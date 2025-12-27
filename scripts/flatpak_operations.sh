@@ -27,8 +27,23 @@ case "$OPERATION" in
         flatpak info "$PACKAGE" 2>/dev/null
         ;;
     "rollback")
-        echo "Flatpak rollback - showing commit history:"
-        flatpak remote-info --log flathub "$PACKAGE" 2>/dev/null
+        echo "═══════════════════════════════════════════════════════════"
+        echo "Flatpak Rollback Options for: $PACKAGE"
+        echo "═══════════════════════════════════════════════════════════"
+        echo ""
+        if [ -n "$PACKAGE" ]; then
+            echo "Current version:"
+            flatpak info "$PACKAGE" 2>/dev/null | grep -E "(ID|Version|Branch|Commit)"
+            echo ""
+            echo "Commit history (use commit hash to rollback):"
+            flatpak remote-info --log flathub "$PACKAGE" 2>/dev/null | head -20
+            echo ""
+            echo "To rollback to a specific commit:"
+            echo "  flatpak update --commit=<commit-hash> $PACKAGE"
+        else
+            echo "Please specify a flatpak package name"
+        fi
+        echo "═══════════════════════════════════════════════════════════"
         ;;
     *)
         echo "Unknown operation: $OPERATION"

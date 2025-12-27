@@ -12,7 +12,7 @@ case "$OPERATION" in
         sudo dnf upgrade -y
         ;;
     "list")
-        dnf list installed 2>/dev/null | grep -v "^Installed Packages"
+        dnf list installed 2>/dev/null | tail -n +2
         ;;
     "search")
         dnf search "$PACKAGE" 2>/dev/null
@@ -27,8 +27,22 @@ case "$OPERATION" in
         dnf info "$PACKAGE" 2>/dev/null
         ;;
     "rollback")
-        echo "DNF rollback - showing available versions:"
-        dnf list --showduplicates "$PACKAGE" 2>/dev/null
+        echo "═══════════════════════════════════════════════════════════"
+        echo "DNF Rollback Options for: $PACKAGE"
+        echo "═══════════════════════════════════════════════════════════"
+        echo ""
+        if [ -n "$PACKAGE" ]; then
+            echo "Available versions:"
+            dnf list --showduplicates "$PACKAGE" 2>/dev/null
+            echo ""
+            echo "To install a specific version:"
+            echo "  sudo dnf downgrade $PACKAGE-<version>"
+            echo ""
+            echo "Or use: sudo dnf install $PACKAGE-<version>"
+        else
+            echo "Please specify a package name"
+        fi
+        echo "═══════════════════════════════════════════════════════════"
         ;;
     *)
         echo "Unknown operation: $OPERATION"

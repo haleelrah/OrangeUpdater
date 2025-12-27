@@ -28,10 +28,15 @@ typedef struct {
     GtkTextBuffer *text_buffer;
     GtkWidget *search_entry;
     GtkWidget *status_bar;
+    GtkWidget *install_btn;
+    GtkWidget *remove_btn;
+    GtkWidget *rollback_btn;
+    GtkWidget *package_entry;
     
     PackageManager managers[MAX_MANAGERS];
     int manager_count;
     char current_manager[32];
+    char last_searched_package[256];
 } OrangeApp;
 
 // Function declarations
@@ -43,6 +48,9 @@ void on_upgrade_clicked(GtkButton *button, gpointer user_data);
 void on_list_packages_clicked(GtkButton *button, gpointer user_data);
 void on_search_clicked(GtkButton *button, gpointer user_data);
 void on_refresh_clicked(GtkButton *button, gpointer user_data);
+void on_install_clicked(GtkButton *button, gpointer user_data);
+void on_remove_clicked(GtkButton *button, gpointer user_data);
+void on_rollback_clicked(GtkButton *button, gpointer user_data);
 void append_to_text_view(GtkTextBuffer *buffer, const char *text);
 void clear_text_view(GtkTextBuffer *buffer);
 char* get_script_path(const char *manager);

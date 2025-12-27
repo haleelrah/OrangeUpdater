@@ -32,7 +32,7 @@ static void activate(GtkApplication *gtk_app, gpointer user_data) {
     gtk_widget_set_margin_end(toolbar, 10);
     gtk_widget_set_margin_top(toolbar, 5);
     
-    // Action buttons
+    // Action buttons - Row 1
     GtkWidget *update_btn = gtk_button_new_with_label("📋 Update");
     GtkWidget *upgrade_btn = gtk_button_new_with_label("⬆ Upgrade");
     GtkWidget *list_btn = gtk_button_new_with_label("📦 List Packages");
@@ -48,6 +48,32 @@ static void activate(GtkApplication *gtk_app, gpointer user_data) {
     // Separator
     GtkWidget *separator1 = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
     gtk_box_pack_start(GTK_BOX(toolbar), separator1, FALSE, FALSE, 5);
+    
+    // Install/Remove/Rollback buttons
+    app->install_btn = gtk_button_new_with_label("⬇ Install");
+    app->remove_btn = gtk_button_new_with_label("🗑 Remove");
+    app->rollback_btn = gtk_button_new_with_label("⏮ Rollback");
+    
+    g_signal_connect(app->install_btn, "clicked", G_CALLBACK(on_install_clicked), app);
+    g_signal_connect(app->remove_btn, "clicked", G_CALLBACK(on_remove_clicked), app);
+    g_signal_connect(app->rollback_btn, "clicked", G_CALLBACK(on_rollback_clicked), app);
+    
+    gtk_box_pack_start(GTK_BOX(toolbar), app->install_btn, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(toolbar), app->remove_btn, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(toolbar), app->rollback_btn, FALSE, FALSE, 0);
+    
+    // Separator
+    GtkWidget *separator2 = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
+    gtk_box_pack_start(GTK_BOX(toolbar), separator2, FALSE, FALSE, 5);
+    
+    // Package name entry for install/remove/rollback
+    app->package_entry = gtk_entry_new();
+    gtk_entry_set_placeholder_text(GTK_ENTRY(app->package_entry), "Package name for install/remove/rollback...");
+    gtk_box_pack_start(GTK_BOX(toolbar), app->package_entry, TRUE, TRUE, 0);
+    
+    // Separator
+    GtkWidget *separator3 = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
+    gtk_box_pack_start(GTK_BOX(toolbar), separator3, FALSE, FALSE, 5);
     
     // Search box
     app->search_entry = gtk_entry_new();
@@ -150,6 +176,7 @@ static void activate(GtkApplication *gtk_app, gpointer user_data) {
 int main(int argc, char *argv[]) {
     OrangeApp app = {0};
     strcpy(app.current_manager, "");
+    strcpy(app.last_searched_package, "");
     
     GtkApplication *gtk_app = gtk_application_new("com.theorange.updater", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(gtk_app, "activate", G_CALLBACK(activate), &app);

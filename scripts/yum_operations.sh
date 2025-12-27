@@ -12,7 +12,7 @@ case "$OPERATION" in
         sudo yum update -y
         ;;
     "list")
-        yum list installed 2>/dev/null
+        yum list installed 2>/dev/null | tail -n +2
         ;;
     "search")
         yum search "$PACKAGE" 2>/dev/null
