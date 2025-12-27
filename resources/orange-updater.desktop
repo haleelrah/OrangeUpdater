@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Orange Updater
+GenericName=Package Manager
+Comment=Universal package manager interface for Linux
+Exec=orange-updater
+Icon=system-software-update
+Terminal=false
+Categories=System;PackageManager;GTK;
+Keywords=package;manager;update;upgrade;apt;dnf;pacman;flatpak;snap;
